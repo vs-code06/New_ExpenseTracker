@@ -1,0 +1,217 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.dashboard {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.view-all-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.content {
+  padding: 32px 5vw;
+}
+
+.greeting h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.greeting p {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  justify-content: space-between;
+}
+
+.card-amount {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.small-change {
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 4px;
+}
+
+.expense-trends,
+.recent-transactions {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+.trends-header,
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+}
+
+.tabs button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.tabs button:hover {
+  background: #f3f4f6;
+}
+
+.tabs .active {
+  color: #3b82f6;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.chart-container {
+  width: 100%;
+  height: 240px;
+}
+
+.chart-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+
+.recent-transactions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recent-transactions li {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.recent-transactions li:last-child {
+  border-bottom: none;
+}
+
+.transaction-details {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.transaction-details small {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.amount {
+  min-width: 100px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.red {
+  color: #ef4444;
+}
+
+.green {
+  color: #10b981;
+}
+
+.blue {
+  color: #3b82f6;
+}
+
+.purple {
+  color: #8b5cf6;
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
