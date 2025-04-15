@@ -1,51 +1,92 @@
 import React, { useState } from "react";
-import { FaPlus, FaUtensils, FaCar, FaBolt, FaFilm, FaEdit } from "react-icons/fa";
+import {
+  FaPlus, FaUtensils, FaCar, FaBolt, FaFilm, FaHeart, FaShoppingBag, FaBook, FaEdit
+} from "react-icons/fa";
 import "./BudgetPlanner.css";
+import { ExpenseData } from "./ExpenseData"; // adjust path as needed
 
-const initialCategories = [
-  { name: "Food", icon: <FaUtensils />, budgeted: 800, spent: 650, color: "#f97316" },
-  { name: "Transport", icon: <FaCar />, budgeted: 400, spent: 285, color: "#3b82f6" },
-  { name: "Utilities", icon: <FaBolt />, budgeted: 300, spent: 310.5, color: "#ef4444" },
-  { name: "Entertainment", icon: <FaFilm />, budgeted: 200, spent: 150, color: "#8b5cf6" },
-];
+const iconMap = {
+  Food: <FaUtensils />,
+  Transport: <FaCar />,
+  Utilities: <FaBolt />,
+  Entertainment: <FaFilm />,
+  Health: <FaHeart />,
+  Shopping: <FaShoppingBag />,
+  Education: <FaBook />,
+};
+
+const colorMap = {
+  Food: "#f97316",
+  Transport: "#3b82f6",
+  Utilities: "#ef4444",
+  Entertainment: "#8b5cf6",
+  Health: "#10b981",
+  Shopping: "#eab308",
+  Education: "#14b8a6",
+};
 
 const BudgetPlanner = () => {
-  const [categories, setCategories] = useState(initialCategories);
   const [showPopup, setShowPopup] = useState(false);
   const [newName, setNewName] = useState("");
   const [newBudget, setNewBudget] = useState("");
   const [newSpent, setNewSpent] = useState("");
-  const [totalBudget, setTotalBudget] = useState(0);
   const [showBudgetPopup, setShowBudgetPopup] = useState(false);
   const [updatedBudget, setUpdatedBudget] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null); 
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [customCategories, setCustomCategories] = useState([]);
 
-  const totalSpent = categories.reduce((sum, c) => sum + c.spent, 0);
+  const grouped = {};
+  ExpenseData.forEach(({ category, amount, budget }) => {
+    if (!grouped[category]) {
+      grouped[category] = { spent: 0, budgeted: 0 };
+    }
+    if (amount < 0) {
+      grouped[category].spent += Math.abs(amount);
+    }
+    if (budget > 0) {
+      grouped[category].budgeted = budget;
+    }
+  });
+
+  const initialBudget = Object.values(grouped)
+    .filter((group) => group.budgeted > 0)
+    .reduce((sum, group) => sum + group.budgeted, 0);
+
+  const [totalBudget, setTotalBudget] = useState(initialBudget);
+
+  const mergedCategories = Object.keys(grouped)
+    .filter((cat) => grouped[cat].budgeted > 0) // exclude income
+    .map((cat) => ({
+      name: cat,
+      icon: iconMap[cat] || <FaEdit />,
+      color: colorMap[cat] || "#10b981",
+      budgeted: grouped[cat].budgeted,
+      spent: grouped[cat].spent,
+    }));
+
+  const allCategories = [...mergedCategories, ...customCategories];
+  const totalSpent = allCategories.reduce((sum, c) => sum + c.spent, 0);
   const remainingBudget = totalBudget - totalSpent;
 
   const addCategory = () => {
     if (!newName || isNaN(newBudget) || isNaN(newSpent)) return;
 
-    const updatedCategory = {
+    const newCategory = {
       name: newName,
-      icon: <FaEdit />, 
+      icon: <FaEdit />,
+      color: "#10b981",
       budgeted: parseFloat(newBudget),
       spent: parseFloat(newSpent),
-      color: editingIndex !== null ? categories[editingIndex].color : "#10b981",
     };
 
     if (editingIndex !== null) {
-      const updatedCategories = [...categories];
-      updatedCategories[editingIndex] = {
-        ...updatedCategories[editingIndex],
-        ...updatedCategory,
-      };
-      setCategories(updatedCategories);
+      const updated = [...customCategories];
+      updated[editingIndex] = newCategory;
+      setCustomCategories(updated);
     } else {
-      setCategories([...categories, updatedCategory]);
+      setCustomCategories([...customCategories, newCategory]);
     }
 
-    // Reset
     setNewName("");
     setNewBudget("");
     setNewSpent("");
@@ -57,7 +98,7 @@ const BudgetPlanner = () => {
     <div className="budget-container">
       <div className="budget-header">
         <h2>Budget Planner</h2>
-        <p>March 2025</p>
+        <p>April 2025</p>
       </div>
 
       <div className="budget-summary">
@@ -71,7 +112,9 @@ const BudgetPlanner = () => {
         </div>
         <div className="summary-box">
           <p>Remaining Budget</p>
-          <h3 className={remainingBudget > 0 ? "green" : "red"}>${remainingBudget.toFixed(2)}</h3>
+          <h3 className={remainingBudget >= 0 ? "green" : "red"}>
+            {remainingBudget < 0 ? `- $${Math.abs(remainingBudget).toFixed(2)}` : `$${remainingBudget.toFixed(2)}`}
+          </h3>
         </div>
       </div>
 
@@ -92,7 +135,7 @@ const BudgetPlanner = () => {
           </button>
         </div>
 
-        {categories.map((cat, index) => {
+        {allCategories.map((cat, index) => {
           const remaining = cat.budgeted - cat.spent;
           const width = Math.min((cat.spent / cat.budgeted) * 100, 100);
           const remainingColor = remaining >= 0 ? "green" : "red";
@@ -104,16 +147,19 @@ const BudgetPlanner = () => {
                   <span className="icon">{cat.icon}</span>
                   <strong>{cat.name}</strong>
                 </div>
-                <FaEdit
-                  className="edit-icon"
-                  onClick={() => {
-                    setShowPopup(true);
-                    setNewName(cat.name);
-                    setNewBudget(cat.budgeted);
-                    setNewSpent(cat.spent);
-                    setEditingIndex(index);
-                  }}
-                />
+                {index >= mergedCategories.length && (
+                  <FaEdit
+                    className="edit-icon"
+                    onClick={() => {
+                      const customCat = customCategories[index - mergedCategories.length];
+                      setShowPopup(true);
+                      setNewName(customCat.name);
+                      setNewBudget(customCat.budgeted);
+                      setNewSpent(customCat.spent);
+                      setEditingIndex(index - mergedCategories.length);
+                    }}
+                  />
+                )}
               </div>
               <div className="card-details">
                 <p>Budgeted: <strong>${cat.budgeted.toFixed(2)}</strong></p>
@@ -123,7 +169,10 @@ const BudgetPlanner = () => {
                 </strong></p>
               </div>
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${width}%`, background: cat.color }}></div>
+                <div
+                  className="progress-fill"
+                  style={{ width: `${width}%`, background: cat.color }}
+                ></div>
               </div>
             </div>
           );

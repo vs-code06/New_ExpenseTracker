@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
 }
-  
+
 .search-box {
   display: flex;
   align-items: center;
@@ -78,21 +78,47 @@ td {
   background: #f3f4f6;
   color: #111827;
   font-weight: 500;
+  display: inline-block;
 }
 
-.tag.blue {
-  background: #e0f2fe;
-  color: #3b82f6;
+.tag.food {
+  background: #e0f9e0;
+  color: #48a14d;
 }
 
-.tag.green {
-  background: #d1fae5;
-  color: #10b981;
+.tag.transport {
+  background: #e8d8ff;
+  color: #7c4dff;
 }
 
-.tag.purple {
-  background: #ede9fe;
-  color: #8b5cf6;
+.tag.entertainment {
+  background: #ffecb3;
+  color: #f57c00;
+}
+
+.tag.utilities {
+  background: #e0f7fa;
+  color: #00acc1;
+}
+
+.tag.health {
+  background: #dcedc8;
+  color: #388e3c;
+}
+
+.tag.shopping {
+  background: #ffe0b2;
+  color: #ff5722;
+}
+
+.tag.education {
+  background: #c5cae9;
+  color: #3f51b5;
+}
+
+.tag.income {
+  background: #e8f5e9;
+  color: #43a047;
 }
 
 .actions {
@@ -104,4 +130,14 @@ td {
 
 .actions svg:hover {
   color: #3b82f6;
+}
+
+.green {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.red {
+  color: #ef4444;
+  font-weight: bold;
 }

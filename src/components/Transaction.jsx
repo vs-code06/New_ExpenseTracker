@@ -1,32 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Transaction.css';
-import { FaSearch, FaEdit, FaTrash } from 'react-icons/fa';
-
-const transactions = [
-  {
-    date: 'Apr 10, 2025',
-    category: 'Food',
-    tagColor: 'blue',
-    description: 'Lunch at Subway',
-    amount: -12.99,
-  },
-  {
-    date: 'Apr 09, 2025',
-    category: 'Income',
-    tagColor: 'green',
-    description: 'Freelance Payment',
-    amount: 850,
-  },
-  {
-    date: 'Apr 08, 2025',
-    category: 'Transport',
-    tagColor: 'purple',
-    description: 'Uber Ride',
-    amount: -24.5,
-  },
-];
+import { FaSearch, FaTrash } from 'react-icons/fa';
+import { ExpenseData } from './ExpenseData';
 
 export default function Transactions() {
+  const [transactions, setTransactions] = useState(ExpenseData);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    setTransactions(ExpenseData);
+  }, []);
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleDelete = (id) => {
+    const updatedTransactions = transactions.filter((tx) => tx.id !== id);
+    setTransactions(updatedTransactions);
+  };
+
+  const filteredTransactions = transactions.filter((tx) =>
+    tx.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="content">
       <h2>Transactions</h2>
@@ -34,15 +31,13 @@ export default function Transactions() {
       <div className="filters">
         <div className="search-box">
           <FaSearch />
-          <input type="text" placeholder="Search transactions..." />
+          <input
+            type="text"
+            placeholder="Search transactions..."
+            value={searchQuery}
+            onChange={handleSearch}
+          />
         </div>
-        <select>
-          <option>All Categories</option>
-        </select>
-        <input type="text" placeholder="dd/mm/yyyy" />
-        <select>
-          <option>Amount Range</option>
-        </select>
       </div>
 
       <div className="transactions-table">
@@ -57,21 +52,20 @@ export default function Transactions() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((tx, index) => (
-              <tr key={index}>
+            {filteredTransactions.map((tx) => (
+              <tr key={tx.id}>
                 <td>{tx.date}</td>
                 <td>
-                  <span className={`tag ${tx.tagColor.toLowerCase()}`}>
+                  <span className={`tag ${tx.category.toLowerCase()}`}>
                     {tx.category}
                   </span>
                 </td>
-                <td>{tx.description}</td>
+                <td>{tx.title}</td>
                 <td className={tx.amount >= 0 ? 'green' : 'red'}>
                   {tx.amount >= 0 ? '+' : '-'}${Math.abs(tx.amount).toFixed(2)}
                 </td>
                 <td className="actions">
-                  <FaEdit />
-                  <FaTrash />
+                  <FaTrash onClick={() => handleDelete(tx.id)} />
                 </td>
               </tr>
             ))}

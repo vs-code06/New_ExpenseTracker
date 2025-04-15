@@ -7,24 +7,31 @@ import {
   FaShoppingCart,
   FaTaxi,
   FaUniversity,
-  FaPlus,
 } from "react-icons/fa";
 import { defaults } from "chart.js/auto";
 import { Line } from "react-chartjs-2";
+import { ExpenseData } from "./ExpenseData"; // Import ExpenseData
 import "./Dashboard.css";
 defaults.responsive = true;
 
 const Dashboard = ({ setPage }) => {
-  const data = [
-    { name: 'Mon', expense: 240 },
-    { name: 'Tue', expense: 221 },
-    { name: 'Wed', expense: 229 },
-    { name: 'Thu', expense: 200 },
-    { name: 'Fri', expense: 218 },
-    { name: 'Sat', expense: 250 },
-    { name: 'Sun', expense: 270 },
+  const totalExpenses = ExpenseData.filter(item => item.amount < 0)
+    .reduce((acc, item) => acc + item.amount, 0);
+
+  const totalIncome = ExpenseData.filter(item => item.amount > 0)
+    .reduce((acc, item) => acc + item.amount, 0);
+
+  const budgetRemaining = ExpenseData.reduce((acc, item) => acc + item.budget, 0);
+  const weeklyExpensesData = [
+    { name: "Mon", expense: 240 },
+    { name: "Tue", expense: 221 },
+    { name: "Wed", expense: 229 },
+    { name: "Thu", expense: 200 },
+    { name: "Fri", expense: 218 },
+    { name: "Sat", expense: 250 },
+    { name: "Sun", expense: 270 },
   ];
-  
+
   return (
     <>
       <div className="greeting">
@@ -39,7 +46,7 @@ const Dashboard = ({ setPage }) => {
             <FaCreditCard style={{ color: "blue" }} />
           </div>
           <div className="card-amount red">
-            $2,847.95 <span className="small-change">+2.5%</span>
+            ${totalExpenses.toFixed(2)} <span className="small-change">+2.5%</span>
           </div>
         </div>
 
@@ -49,7 +56,7 @@ const Dashboard = ({ setPage }) => {
             <FaWallet style={{ color: "green" }} />
           </div>
           <div className="card-amount green">
-            $1,152.05 <span className="small-change">28%</span>
+            ${budgetRemaining.toFixed(2)} <span className="small-change">28%</span>
           </div>
           <div className="progress-bar">
             <div className="progress-fill" style={{ width: "28%" }}></div>
@@ -62,7 +69,8 @@ const Dashboard = ({ setPage }) => {
             <FaExchangeAlt style={{ color: "purple" }} />
           </div>
           <div className="card-amount">
-            47 <span className="small-change">this month</span>
+            {ExpenseData.filter(item => item.amount !== 0).length}{" "}
+            <span className="small-change">this month</span>
           </div>
         </div>
 
@@ -72,7 +80,7 @@ const Dashboard = ({ setPage }) => {
             <FaPiggyBank style={{ color: "red" }} />
           </div>
           <div className="card-amount green">
-            $5,240.00 <span className="small-change">+12%</span>
+            ${(totalIncome + totalExpenses).toFixed(2)} <span className="small-change">+12%</span>
           </div>
         </div>
       </div>
@@ -82,60 +90,52 @@ const Dashboard = ({ setPage }) => {
           <h3>Expense Trends</h3>
           <div className="tabs">
             <button className="active">Week</button>
-            <button>Month</button>
-            <button>Year</button>
           </div>
         </div>
         <div className="chart-container">
-          <Line 
+          <Line
             data={{
-              labels: data.map((ele) => ele.name),
+              labels: weeklyExpensesData.map((ele) => ele.name),
               datasets: [
                 {
                   label: "Expense",
-                  data: data.map((ele) => ele.expense),
-                }
-              ]
-            }}/>
+                  data: weeklyExpensesData.map((ele) => ele.expense),
+                },
+              ],
+            }}
+          />
         </div>
       </div>
 
       <div className="recent-transactions">
         <div className="transactions-header">
           <h3>Recent Transactions</h3>
-          <button className="view-all-btn" onClick={() => setPage("transactions")}>View All</button>
+          <button className="view-all-btn" onClick={() => setPage("transactions")}>
+            View All
+          </button>
         </div>
         <ul>
-          <li>
-            <FaShoppingCart className="icon blue" />
-            <div className="transaction-details">
-              <p>Grocery Shopping</p>
-              <small>Today, 2:30 PM</small>
-            </div>
-            <span className="amount red">- $84.50</span>
-          </li>
-          <li>
-            <FaTaxi className="icon purple" />
-            <div className="transaction-details">
-              <p>Uber Ride</p>
-              <small>Today, 1:15 PM</small>
-            </div>
-            <span className="amount red">- $12.80</span>
-          </li>
-          <li>
-            <FaUniversity className="icon green" />
-            <div className="transaction-details">
-              <p>Salary Deposit</p>
-              <small>Yesterday</small>
-            </div>
-            <span className="amount green">+ $3,250.00</span>
-          </li>
+          {ExpenseData.slice(0, 3).map((transaction) => (
+            <li key={transaction.id}>
+              {transaction.amount < 0 ? (
+                <FaShoppingCart className="icon blue" />
+              ) : transaction.category === "Income" ? (
+                <FaUniversity  />
+              ) : (
+                <FaTaxi  />
+              )}
+              <div className="transaction-details">
+                <p>{transaction.title}</p>
+                <small>{transaction.date}</small>
+              </div>
+              <span className={`amount ${transaction.amount < 0 ? "red" : "green"}`}>
+                {transaction.amount < 0 ? "-" : "+"} ${Math.abs(transaction.amount).toFixed(2)}
+              </span>
+            </li>
+          ))}
         </ul>
       </div>
 
-      <button className="fab">
-        <FaPlus />
-      </button>
     </>
   );
 };
