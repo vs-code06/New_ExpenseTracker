@@ -6,7 +6,7 @@ import {
 } from "react-icons/fa";
 import { ExpenseData } from "./ExpenseData";
 import "./Insights.css";
-import { Line } from "react-chartjs-2";
+import { Line, Pie } from "react-chartjs-2";
 
 const Insights = () => {
   const [selectedRange, setSelectedRange] = useState("30");
@@ -22,6 +22,23 @@ const Insights = () => {
       return diffTime <= 30;
     });
   };
+
+  const filteredCategoryTotals = ExpenseData.reduce((acc, curr) => {
+    if (!acc[curr.category]) {
+      acc[curr.category] = 0;
+    }
+    acc[curr.category] += curr.amount;
+    return acc;
+  }, {});
+  
+  const result = Object.entries(filteredCategoryTotals)
+    .filter(([_, total]) => total !== 0)
+    .map(([category, total]) => ({
+      category,
+      total
+    }));
+  
+  console.log(result);
 
   const filteredExpenses = filterByTime(
     ExpenseData.filter((txn) => txn.amount < 0 && (selectedCategory === "All" || txn.category === selectedCategory))
@@ -116,7 +133,20 @@ const Insights = () => {
         </div>
         <div className="chart-box pie-chart">
           <h4>Spending by Category</h4>
-          <div className="chart-placeholder">[Pie Chart Here]</div>
+          <div className="chart-placeholder">
+          <Pie
+            data={{
+              labels: result.map((ele) => ele.category ),
+              datasets: [
+                {
+                  label: "Expense",
+                  data: result.map((ele) => ele.total)
+                },
+              ],
+            }}
+          />
+
+          </div>
         </div>
       </div>
 
