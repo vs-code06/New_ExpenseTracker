@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import {
-  FaPlus, FaUtensils, FaCar, FaBolt, FaFilm, FaHeart, FaShoppingBag, FaBook, FaEdit
+  FaPlus, FaUtensils, FaCar, FaBolt, FaFilm,
+  FaHeart, FaShoppingBag, FaBook, FaEdit
 } from "react-icons/fa";
 import "./BudgetPlanner.css";
-import { ExpenseData } from "./ExpenseData"; // adjust path as needed
+import { ExpenseData } from "./ExpenseData";
 
 const iconMap = {
   Food: <FaUtensils />,
@@ -30,48 +31,55 @@ const BudgetPlanner = () => {
   const [newName, setNewName] = useState("");
   const [newBudget, setNewBudget] = useState("");
   const [newSpent, setNewSpent] = useState("");
+  const [customCategories, setCustomCategories] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
+
   const [showBudgetPopup, setShowBudgetPopup] = useState(false);
   const [updatedBudget, setUpdatedBudget] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [customCategories, setCustomCategories] = useState([]);
 
   const grouped = {};
-  ExpenseData.forEach(({ category, amount, budget }) => {
+
+  ExpenseData.forEach((item) => {
+    const { category, amount, budget } = item;
+
     if (!grouped[category]) {
       grouped[category] = { spent: 0, budgeted: 0 };
     }
+
     if (amount < 0) {
       grouped[category].spent += Math.abs(amount);
     }
+
     if (budget > 0) {
       grouped[category].budgeted = budget;
     }
   });
 
   const initialBudget = Object.values(grouped)
-    .filter((group) => group.budgeted > 0)
-    .reduce((sum, group) => sum + group.budgeted, 0);
+    .map(item => item.budgeted)
+    .reduce((a, b) => a + b, 0);
 
   const [totalBudget, setTotalBudget] = useState(initialBudget);
 
-  const mergedCategories = Object.keys(grouped)
-    .filter((cat) => grouped[cat].budgeted > 0) // exclude income
-    .map((cat) => ({
-      name: cat,
-      icon: iconMap[cat] || <FaEdit />,
-      color: colorMap[cat] || "#10b981",
-      budgeted: grouped[cat].budgeted,
-      spent: grouped[cat].spent,
-    }));
+  const defaultCategories = Object.keys(grouped).map((name) => {
+    return {
+      name: name,
+      icon: iconMap[name] || <FaEdit />,
+      color: colorMap[name] || "#10b981",
+      budgeted: grouped[name].budgeted,
+      spent: grouped[name].spent,
+    };
+  });
 
-  const allCategories = [...mergedCategories, ...customCategories];
+  const allCategories = [...defaultCategories, ...customCategories];
+
   const totalSpent = allCategories.reduce((sum, c) => sum + c.spent, 0);
-  const remainingBudget = totalBudget - totalSpent;
+  const remaining = totalBudget - totalSpent;
 
   const addCategory = () => {
     if (!newName || isNaN(newBudget) || isNaN(newSpent)) return;
 
-    const newCategory = {
+    const newCat = {
       name: newName,
       icon: <FaEdit />,
       color: "#10b981",
@@ -80,11 +88,11 @@ const BudgetPlanner = () => {
     };
 
     if (editingIndex !== null) {
-      const updated = [...customCategories];
-      updated[editingIndex] = newCategory;
-      setCustomCategories(updated);
+      const copy = [...customCategories];
+      copy[editingIndex] = newCat;
+      setCustomCategories(copy);
     } else {
-      setCustomCategories([...customCategories, newCategory]);
+      setCustomCategories([...customCategories, newCat]);
     }
 
     setNewName("");
@@ -112,8 +120,8 @@ const BudgetPlanner = () => {
         </div>
         <div className="summary-box">
           <p>Remaining Budget</p>
-          <h3 className={remainingBudget >= 0 ? "green" : "red"}>
-            {remainingBudget < 0 ? `- $${Math.abs(remainingBudget).toFixed(2)}` : `$${remainingBudget.toFixed(2)}`}
+          <h3 className={remaining >= 0 ? "green" : "red"}>
+            {remaining < 0 ? `- $${Math.abs(remaining).toFixed(2)}` : `$${remaining.toFixed(2)}`}
           </h3>
         </div>
       </div>
@@ -135,28 +143,28 @@ const BudgetPlanner = () => {
           </button>
         </div>
 
-        {allCategories.map((cat, index) => {
+        {allCategories.map((cat, i) => {
           const remaining = cat.budgeted - cat.spent;
-          const width = Math.min((cat.spent / cat.budgeted) * 100, 100);
-          const remainingColor = remaining >= 0 ? "green" : "red";
+          const barWidth = Math.min((cat.spent / cat.budgeted) * 100, 100);
+          const isCustom = i >= defaultCategories.length;
 
           return (
-            <div className="category-card" key={index}>
+            <div className="category-card" key={i}>
               <div className="card-header">
                 <div className="left">
                   <span className="icon">{cat.icon}</span>
                   <strong>{cat.name}</strong>
                 </div>
-                {index >= mergedCategories.length && (
+                {isCustom && (
                   <FaEdit
                     className="edit-icon"
                     onClick={() => {
-                      const customCat = customCategories[index - mergedCategories.length];
+                      const selected = customCategories[i - defaultCategories.length];
                       setShowPopup(true);
-                      setNewName(customCat.name);
-                      setNewBudget(customCat.budgeted);
-                      setNewSpent(customCat.spent);
-                      setEditingIndex(index - mergedCategories.length);
+                      setNewName(selected.name);
+                      setNewBudget(selected.budgeted);
+                      setNewSpent(selected.spent);
+                      setEditingIndex(i - defaultCategories.length);
                     }}
                   />
                 )}
@@ -164,14 +172,14 @@ const BudgetPlanner = () => {
               <div className="card-details">
                 <p>Budgeted: <strong>${cat.budgeted.toFixed(2)}</strong></p>
                 <p>Spent: <strong>${cat.spent.toFixed(2)}</strong></p>
-                <p>Remaining: <strong className={remainingColor}>
+                <p>Remaining: <strong className={remaining >= 0 ? "green" : "red"}>
                   {remaining < 0 ? `- $${Math.abs(remaining).toFixed(2)}` : `$${remaining.toFixed(2)}`}
                 </strong></p>
               </div>
               <div className="progress-bar">
                 <div
                   className="progress-fill"
-                  style={{ width: `${width}%`, background: cat.color }}
+                  style={{ width: `${barWidth}%`, background: cat.color }}
                 ></div>
               </div>
             </div>
@@ -186,7 +194,7 @@ const BudgetPlanner = () => {
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup-card">
-            <h3>{editingIndex !== null ? "Edit Category" : "Add New Category"}</h3>
+            <h3>{editingIndex !== null ? "Edit Category" : "Add Category"}</h3>
             <input
               type="text"
               placeholder="Category name"
@@ -221,27 +229,24 @@ const BudgetPlanner = () => {
       {showBudgetPopup && (
         <div className="popup-overlay">
           <div className="popup-card">
-            <h3>Update Total Monthly Budget</h3>
+            <h3>Update Total Budget</h3>
             <input
               type="number"
-              placeholder="Enter new budget"
+              placeholder="New budget"
               value={updatedBudget}
               onChange={(e) => setUpdatedBudget(e.target.value)}
             />
             <div className="popup-buttons">
-              <button className="cancel-btn" onClick={() => setShowBudgetPopup(false)}>Cancel</button>
-              <button
-                className="confirm-btn"
-                onClick={() => {
-                  if (!isNaN(updatedBudget) && updatedBudget !== "") {
-                    setTotalBudget(parseFloat(updatedBudget));
-                    setShowBudgetPopup(false);
-                    setUpdatedBudget("");
-                  }
-                }}
-              >
-                Update
+              <button className="cancel-btn" onClick={() => setShowBudgetPopup(false)}>
+                Cancel
               </button>
+              <button className="confirm-btn" onClick={() => {
+                if (!isNaN(updatedBudget) && updatedBudget !== "") {
+                  setTotalBudget(parseFloat(updatedBudget));
+                  setShowBudgetPopup(false);
+                  setUpdatedBudget("");
+                }
+              }}>Update</button>
             </div>
           </div>
         </div>

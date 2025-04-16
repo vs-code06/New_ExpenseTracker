@@ -8,20 +8,25 @@ import {
   FaTaxi,
   FaUniversity,
 } from "react-icons/fa";
-import { defaults } from "chart.js/auto";
 import { Line } from "react-chartjs-2";
-import { ExpenseData } from "./ExpenseData"; // Import ExpenseData
+import { defaults } from "chart.js/auto";
+import { ExpenseData } from "./ExpenseData";
 import "./Dashboard.css";
+
 defaults.responsive = true;
 
 const Dashboard = ({ setPage }) => {
-  const totalExpenses = ExpenseData.filter(item => item.amount < 0)
-    .reduce((acc, item) => acc + item.amount, 0);
+  const totalExpenses = ExpenseData
+    .filter((item) => item.amount < 0)
+    .reduce((sum, item) => sum + item.amount, 0);
 
-  const totalIncome = ExpenseData.filter(item => item.amount > 0)
-    .reduce((acc, item) => acc + item.amount, 0);
+  const totalIncome = ExpenseData
+    .filter((item) => item.amount > 0)
+    .reduce((sum, item) => sum + item.amount, 0);
 
-  const budgetRemaining = ExpenseData.reduce((acc, item) => acc + item.budget, 0);
+  const budgetRemaining = ExpenseData
+    .reduce((sum, item) => sum + item.budget, 0);
+
   const weeklyExpensesData = [
     { name: "Mon", expense: 240 },
     { name: "Tue", expense: 221 },
@@ -32,11 +37,13 @@ const Dashboard = ({ setPage }) => {
     { name: "Sun", expense: 270 },
   ];
 
+  const recentTransactions = ExpenseData.slice(0, 3);
+
   return (
     <>
       <div className="greeting">
         <h2>Good morning, Alex!</h2>
-        <p>Here's your financial overview for today</p>
+        <p>Your financial summary for today</p>
       </div>
 
       <div className="summary-cards">
@@ -69,8 +76,8 @@ const Dashboard = ({ setPage }) => {
             <FaExchangeAlt style={{ color: "purple" }} />
           </div>
           <div className="card-amount">
-            {ExpenseData.filter(item => item.amount !== 0).length}{" "}
-            <span className="small-change">this month</span>
+            {ExpenseData.filter(item => item.amount !== 0).length}
+            <span className="small-change"> this month</span>
           </div>
         </div>
 
@@ -95,13 +102,27 @@ const Dashboard = ({ setPage }) => {
         <div className="chart-container">
           <Line
             data={{
-              labels: weeklyExpensesData.map((ele) => ele.name),
+              labels: weeklyExpensesData.map(day => day.name),
               datasets: [
                 {
                   label: "Expense",
-                  data: weeklyExpensesData.map((ele) => ele.expense),
+                  data: weeklyExpensesData.map(day => day.expense),
+                  borderColor: "#4b7bec",
+                  backgroundColor: "rgba(75, 123, 236, 0.2)",
+                  tension: 0.4,
+                  fill: true,
                 },
               ],
+            }}
+            options={{
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
             }}
           />
         </div>
@@ -115,27 +136,26 @@ const Dashboard = ({ setPage }) => {
           </button>
         </div>
         <ul>
-          {ExpenseData.slice(0, 3).map((transaction) => (
-            <li key={transaction.id}>
-              {transaction.amount < 0 ? (
+          {recentTransactions.map((tx) => (
+            <li key={tx.id}>
+              {tx.amount < 0 ? (
                 <FaShoppingCart className="icon blue" />
-              ) : transaction.category === "Income" ? (
-                <FaUniversity  />
+              ) : tx.category === "Income" ? (
+                <FaUniversity />
               ) : (
-                <FaTaxi  />
+                <FaTaxi />
               )}
               <div className="transaction-details">
-                <p>{transaction.title}</p>
-                <small>{transaction.date}</small>
+                <p>{tx.title}</p>
+                <small>{tx.date}</small>
               </div>
-              <span className={`amount ${transaction.amount < 0 ? "red" : "green"}`}>
-                {transaction.amount < 0 ? "-" : "+"} ${Math.abs(transaction.amount).toFixed(2)}
+              <span className={`amount ${tx.amount < 0 ? "red" : "green"}`}>
+                {tx.amount < 0 ? "-" : "+"}${Math.abs(tx.amount).toFixed(2)}
               </span>
             </li>
           ))}
         </ul>
       </div>
-
     </>
   );
 };
