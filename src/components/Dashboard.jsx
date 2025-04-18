@@ -158,6 +158,11 @@ const Dashboard = () => {
           ))}
         </ul>
       </div>
+      <footer className="dashboard-footer">
+        <p>© 2025 ExpenseFlow. Built with 💙 to help you master your money.</p>
+        <p>Track smarter. Spend wiser. Save better.</p>
+      </footer>
+
     </>
   );
 };

@@ -215,3 +215,15 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   cursor: pointer;
 }
+
+.dashboard-footer {
+  margin-top: 3rem;
+  padding: 2rem 2rem;
+  text-align: center;
+  font-size: 1rem;
+  color: #555;
+  background-color: #f1f4f8;
+  border-top: 2px solid #dcdcdc;
+  font-weight: 500;
+}
+
