@@ -11,6 +11,7 @@ import Transactions from "./components/Transaction";
 import BudgetPlanner from "./components/BudgetPlanner";
 import Insights from "./components/Insights";
 import Explore from "./components/Explore";
+import Profile from "./components/Profile";
 import { FaWallet, FaBars, FaTimes } from "react-icons/fa";
 import "./App.css";
 
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/budget" element={<BudgetPlanner />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
       </div>
@@ -75,6 +77,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
           src="https://i.pravatar.cc/40"
           alt="profile"
           className="avatar"
+          onClick={() => navigate("/profile")}
         />
       </div>
     </header>

@@ -12,10 +12,12 @@ import { Line } from "react-chartjs-2";
 import { defaults } from "chart.js/auto";
 import { ExpenseData } from "./ExpenseData";
 import "./Dashboard.css";
+import { useNavigate } from "react-router-dom"; 
 
 defaults.responsive = true;
 
-const Dashboard = ({ setPage }) => {
+const Dashboard = () => {
+  const navigate = useNavigate()
   const totalExpenses = ExpenseData
     .filter((item) => item.amount < 0)
     .reduce((sum, item) => sum + item.amount, 0);
@@ -131,7 +133,7 @@ const Dashboard = ({ setPage }) => {
       <div className="recent-transactions">
         <div className="transactions-header">
           <h3>Recent Transactions</h3>
-          <button className="view-all-btn" onClick={() => setPage("transactions")}>
+          <button className="view-all-btn"  onClick={() => navigate("/transactions")}>
             View All
           </button>
         </div>

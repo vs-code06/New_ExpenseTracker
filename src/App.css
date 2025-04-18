@@ -85,6 +85,17 @@
   color: #555;
 }
 
+.avatar {
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+
 @media (max-width: 768px) {
   .hamburger {
     display: block;
